@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-from typing import List, Optional
 from sqlalchemy.orm import Session
-from app.database.database import get_db
-from app.database.models import Patient
+from database.database import get_db
+from database.models import Patient
+from datetime import datetime
 
 patient_router = APIRouter()
 
@@ -11,47 +11,51 @@ class PatientCreate(BaseModel):
     name: str
     age: int
 
-class PatientResponse(BaseModel):
-    id_patient: int
+class PatientUpdate(BaseModel):
     name: str
     age: int
-    created_at: datetime
-    updated_at: datetime
 
-    class Config:
-        orm_mode = True
-
-@patient_router.post("/", response_model=PatientResponse)
-async def add_patient(patient: PatientCreate, db: Session = Depends(get_db)):
-    new_patient = Patient(name=patient.name, age=patient.age)
+@patient_router.post("/", status_code=201)
+def add_patient(patient: PatientCreate, db: Session = Depends(get_db)):
+    if not patient.name:
+        raise HTTPException(status_code=400, detail="Gagal menambahkan pasien. Mohon isi nama pasien")
+    new_patient = Patient(name=patient.name, age=patient.age, created_at=datetime.utcnow(), updated_at=datetime.utcnow())
     db.add(new_patient)
     db.commit()
     db.refresh(new_patient)
     return new_patient
 
-@patient_router.get("/{patient_id}", response_model=PatientResponse)
-async def get_patient(patient_id: int, db: Session = Depends(get_db)):
-    patient = db.query(Patient).filter(Patient.id_patient == patient_id).first()
-    if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
-    return patient
+@patient_router.get("/")
+def get_all_patients(db: Session = Depends(get_db)):
+    patients = db.query(Patient).all()
+    return {"status": "success", "data": {"patients": patients}}
 
-@patient_router.put("/{patient_id}", response_model=PatientResponse)
-async def update_patient(patient_id: int, patient: PatientCreate, db: Session = Depends(get_db)):
-    existing_patient = db.query(Patient).filter(Patient.id_patient == patient_id).first()
-    if not existing_patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
-    existing_patient.name = patient.name
-    existing_patient.age = patient.age
+@patient_router.get("/{id_patient}")
+def get_patient(id_patient: str, db: Session = Depends(get_db)):
+    patient = db.query(Patient).filter(Patient.id_patient == id_patient).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Pasien tidak ditemukan")
+    return {"status": "success", "data": patient}
+
+@patient_router.put("/{id_patient}")
+def update_patient(id_patient: str, patient_data: PatientUpdate, db: Session = Depends(get_db)):
+    patient = db.query(Patient).filter(Patient.id_patient == id_patient).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Pasien tidak ditemukan")
+
+    patient.name = patient_data.name
+    patient.age = patient_data.age
+    patient.updated_at = datetime.utcnow()
+    
     db.commit()
-    db.refresh(existing_patient)
-    return existing_patient
+    db.refresh(patient)
+    return {"status": "success", "data": patient}
 
-@patient_router.delete("/{patient_id}")
-async def delete_patient(patient_id: int, db: Session = Depends(get_db)):
-    patient = db.query(Patient).filter(Patient.id_patient == patient_id).first()
+@patient_router.delete("/{id_patient}")
+def delete_patient(id_patient: str, db: Session = Depends(get_db)):
+    patient = db.query(Patient).filter(Patient.id_patient == id_patient).first()
     if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
+        raise HTTPException(status_code=404, detail="Pasien gagal dihapus. Id tidak ditemukan")
     db.delete(patient)
     db.commit()
-    return {"message": "Patient deleted successfully"}
+    return {"status": "success", "message": "Pasien berhasil dihapus"}

@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 
 # Load model
-model = tf.keras.models.load_model("path/to/model.h5")
+model = tf.keras.models.load_model("leukemia_classification_model.h5")
 
 def predict_image(image_array):
     image_array = np.expand_dims(image_array, axis=0)

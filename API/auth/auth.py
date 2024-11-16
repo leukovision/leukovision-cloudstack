@@ -1,7 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, auth
 
-cred = credentials.Certificate("path/to/firebase_credentials.json")
+cred = credentials.Certificate("leukovision-project-firebase-adminsdk-qfwic-1168a1269d.json")
 firebase_admin.initialize_app(cred)
 
 def verify_token(token: str):

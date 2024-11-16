@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
-from app.auth.auth import verify_token
-from app.ml.model import predict_image
+from auth.auth import verify_token
+from ml.model import predict_image
 import numpy as np
 import cv2
 
