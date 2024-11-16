@@ -1,0 +1,35 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# Alembic migration versions
+alembic/versions/
+
+# Virtual environment
+venv/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Pytest cache
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# IDE configurations
+.vscode/
+.idea/
+*.swp
+
+# Sensitive and large files
+leukemia_classification_model.h5
+leukovision-project-firebase-adminsdk-qfwic-1168a1269d.json
