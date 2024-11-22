@@ -1,12 +1,8 @@
 import pool from "../config/db.js";
-import { customAlphabet } from "nanoid";
-
-// Generate patient ID dengan nanoid
-const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
-const generatePatientId = customAlphabet(alphabet, 12);
+import { createPatientId } from "../utils/idGenerator.js";
 
 export const createPatient = async ({ name, age, gender, address }) => {
-  const patient_id = `pt_${generatePatientId()}`;
+  const patient_id = createPatientId();
 
   const [result] = await pool.query(
     "INSERT INTO patients (patient_id, name, age, gender, address) VALUES (?, ?, ?, ?, ?)",
