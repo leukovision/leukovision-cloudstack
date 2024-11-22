@@ -1,0 +1,1 @@
+LeukoVision CloudStack is the backend system for the LeukoVision project, designed to support early detection and classification of leukemia cells. This stack provides secure APIs, efficient data storage, and seamless communication between the mobile application and cloud services.
